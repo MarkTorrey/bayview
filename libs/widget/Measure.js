@@ -39,12 +39,16 @@
   "esri/symbols/SimpleLineSymbol",
   "esri/symbols/SimpleFillSymbol",
   "esri/symbols/jsonUtils",
+  "esri/symbols/TextSymbol",
+  "esri/symbols/Font",
 
   "esri/geometry/geodesicUtils",
   "esri/geometry/webMercatorUtils",
   "esri/geometry/Point",
   "esri/geometry/Polyline",
   "esri/geometry/Polygon",
+  "esri/geometry/screenUtils",
+  "esri/geometry/geometryEngine",
   "esri/graphic",
 
   "esri/tasks/AreasAndLengthsParameters",
@@ -77,8 +81,8 @@
   require, declare, lang, array, connect, Color,
   debounce, has, domStyle, domClass, domConstruct, topic, on, gfx,
   _Widget, registry, Menu, MenuItem, Tooltip,
-  PictureMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, symbolJsonUtils,
-  geodesicUtils, webMercatorUtils, Point, Polyline, Polygon, Graphic,
+  PictureMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, symbolJsonUtils, TextSymbol,
+  Font, geodesicUtils, webMercatorUtils, Point, Polyline, Polygon,screenUtils, geometryEngine, Graphic,
   AreasAndLengthsParameters, LengthsParameters, GeometryService,
   esriNS, esriConfig, domUtils, numberUtils, esriLang, esriUnits, wkidConverter,SpatialReference,
   _TemplatedMixin, _WidgetsInTemplateMixin,
@@ -118,6 +122,7 @@
 
     //---------------
     // Graphic Related
+    _annoGraphic: null,
     _measureGraphics: [],
     _measureGraphic: null,
     _locationGraphic: null,
@@ -127,6 +132,7 @@
     _pointSymbol: null,
     _useDefaultPointSymbol : true,
     _defaultLineSymbol: null,
+    _labelFont: null,
     _lineSymbol: null,
     _areaLineSymbol: null,
     _defaultFillSymbol: null,
@@ -298,7 +304,8 @@
       // -- These are used by default if there are no constructor options for Line and Fill
       this._defaultLineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([0, 128, 255]), 3);
       this._defaultFillSymbol = new SimpleFillSymbol( SimpleLineSymbol.STYLE_SOLID,  new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([0, 128, 255]), 3), new Color([0,0,0, 0.5]));
-
+      this._labelFont = new Font(14, Font.STYLE_NORMAL, Font.VARIANT_NORMAL, Font.WEIGHT_BOLD, "Arial");
+      
       // If constructor object contains a Point symbol (Object), update widget to use it as default when drawing
       if (params.pointSymbol) {
         // Custom Point Symbol
@@ -541,6 +548,10 @@
       this._measureGraphic = null;
       this._measureGraphics = [];
       map.graphics.remove(this._tempGraphic);
+
+      if (this._annoGraphic) {
+        map.graphics.remove(this._annoGraphic);
+      }
 
       connect.disconnect(this._mouseMoveMapHandler);
       this._mouseMoveMapHandler = null;
@@ -1559,6 +1570,7 @@
           this.onMeasure(this.activeTool, this._measureGraphic.geometry, finalResult, this.getUnit(), null);
         }else{
           this.onMeasureEnd(this.activeTool, this._measureGraphic.geometry, finalResult, this.getUnit());
+          this._placeLabel();
         }
       }
     },
@@ -1916,6 +1928,8 @@
         this._tempGraphic = new Graphic();
         this._tempGraphic.setSymbol(this._lineSymbol);
         this._map.graphics.add(this._tempGraphic);
+
+        // place line distance label here
         this._mouseMoveMapHandler = connect.connect(this._map, "onMouseMove", this, "_measureDistanceMouseMoveHandler");
 
         //3.11 Event
@@ -1937,7 +1951,7 @@
         // Current Line
         this._measureGraphic = new Graphic();
         this._measureGraphic.setSymbol(this._lineSymbol);
-
+      
         // Add to Line Array
         this._measureGraphics.push(this._measureGraphic);
 
@@ -1991,6 +2005,8 @@
         var densifiedLine = this._densifyGeometry(line);
         this._tempGraphic.setGeometry(densifiedLine);
 
+        this._placeLabel(densifiedLine);
+
         // Show estimated distance
         if (this._map.cs !== "PCS") {
           // Get new distance and update
@@ -2026,8 +2042,12 @@
 
       // Update App State
       this._measureGraphic.geometry = measurementGeometry;
+      
+      // draw the text after _measureGraphic has been updated
+      this._placeLabel();
 
       if (this._map.cs === "PCS") {
+
         //The final result should be calculated by geometry service in order to give the accurate measurement.
         this._geometryServiceLength(measurementGeometry, true);
       }else{
@@ -2035,6 +2055,7 @@
         this._inputPoints = [];
         this.onMeasureEnd(this.activeTool, measurementGeometry, this._outputResult(this.result, this.getUnit()), this.getUnit());
       }
+
     },
 
     _geometryServiceLength: function (geometry, isEnd) {
@@ -2135,6 +2156,8 @@
       else {
         this.resultValue.setContent(numberUtils.format(finalResult.toFixed(2), { pattern: this.numberPattern }) + " " + unit);
       }
+
+
       // Added in 3.11 for Events
       return finalResult;
     },
@@ -2298,6 +2321,54 @@
       }
       // Update the Image
       gfxShape.applyTransform(transform);
+    },
+
+    // Purpose:
+    // -- Adds distance text to map graphic
+    _placeLabel: function (ofLine) {
+      // is there something to label?
+      if (!ofLine && !this._measureGraphic) {return;}
+
+      // what are we going to label
+      var mLine = ofLine ? ofLine : this._measureGraphic.geometry;
+      if (mLine.type !== 'polyline' || mLine.paths.length < 1) {return;}
+      
+      // figure out label location
+      // currently the endpoint of digitized polyline
+      var endLine = mLine.paths[mLine.paths.length - 1];
+      var endPt = mLine.paths[mLine.paths.length -1][endLine.length -1];
+      var labelPoint = new Point(endPt[0], endPt[1], this._map.spatialReference);
+
+      // offset label from line
+      var labelScreenPoint = screenUtils.toScreenPoint(this._map.extent, this._map.width, this._map.height, labelPoint);
+      labelScreenPoint.x += 10;
+      labelScreenPoint.y += 15;
+      var labelMapPoint = screenUtils.toMapPoint(this._map.extent, this._map.width, this._map.height, labelScreenPoint);
+
+      // calculate length, using geometryEngine here which is different from the output UI. It's using the 
+      // geometry service. should probably keep this consistent.
+      var lineDist = geometryEngine.geodesicLength(mLine, 'meters') / this._unitDictionary[this.getUnit()];
+      
+      // make readable
+      var formatDist = numberUtils.format(lineDist.toFixed(2), { pattern: this.numberPattern }) + " " + this._unitStrings[this.currentDistanceUnit];
+
+      // create label
+      var textLabel = new TextSymbol(
+        formatDist,
+        this._labelFont, 
+        this._defaultLineSymbol.color
+      );
+
+      // add a halo, the text is the same color as the line it's possible they may
+      // overlap.
+      textLabel.setHaloColor(new Color('#FFFFFF'));
+      textLabel.setHaloSize(1);
+
+      if (this._annoGraphic) {
+        this._map.graphics.remove(this._annoGraphic);
+      }
+      this._annoGraphic = new Graphic(labelMapPoint, textLabel);
+      this._map.graphics.add(this._annoGraphic);
     }
   });
 
