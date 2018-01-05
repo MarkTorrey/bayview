@@ -67,8 +67,8 @@ define([
             template.layout = "Letter ANSI A Landscape";
             template.layoutOptions = {
                 titleText: ""
-            }
-
+            };
+            
             var url = 'http://gis.baycountyfl.gov/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task';
             this.printTask = new PrintTask(url);
             this.printParams = new PrintParameters();
@@ -81,6 +81,11 @@ define([
                     domClass.add(this.printErrorContainer, 'is-hidden');
                     domClass.remove(this.printLoading, 'is-hidden');
                     this.printParams.template.layoutOptions.titleText = this.printTitle.value;
+                    template.exportOptions = {
+                        width: this.map.width,
+                        height: this.map.height,
+                        dpi: 300
+                    }
                     domClass.add(this.printResultContainer, 'is-hidden');
 
                     this.printTask.execute(this.printParams, lang.hitch(this, function(evt) {
