@@ -2324,19 +2324,26 @@
       if(!this._tempGraphic && !this._measureGraphic) {return;}
       var labelMapPoint;
       if (this.activeTool === 'distance') {
-        var mLine = this._tempGraphic.geometry.paths.length > 0 ? this._tempGraphic.geometry : this._measureGraphic.geometry;
+        var mLine;
+        if (this._tempGraphic.geometry.paths.length > 0) {
+          mLine = this._tempGraphic.geometry;
+        } else if (this._measureGraphic && this._measureGraphic.geometry){
+          mLine = this._measureGraphic.geometry;
+        } else {
+          return;
+        }
         if (!mLine && mLine.paths.length < 1) {return;}
-        // figure out label location
-        // currently the endpoint of digitized polyline
-        var endLine = mLine.paths[mLine.paths.length - 1];
-        var endPt = mLine.paths[mLine.paths.length -1][endLine.length -1];
-        var labelPoint = new Point(endPt[0], endPt[1], this._map.spatialReference);
-        
-        // offset label from line
-        var labelScreenPoint = screenUtils.toScreenPoint(this._map.extent, this._map.width, this._map.height, labelPoint);
-        labelScreenPoint.x += 50;
-        //labelScreenPoint.y += 3;
-        labelMapPoint = screenUtils.toMapPoint(this._map.extent, this._map.width, this._map.height, labelScreenPoint);
+          // figure out label location
+          // currently the endpoint of digitized polyline
+          var endLine = mLine.paths[mLine.paths.length - 1];
+          var endPt = mLine.paths[mLine.paths.length -1][endLine.length -1];
+          var labelPoint = new Point(endPt[0], endPt[1], this._map.spatialReference);
+          
+          // offset label from line
+          var labelScreenPoint = screenUtils.toScreenPoint(this._map.extent, this._map.width, this._map.height, labelPoint);
+          labelScreenPoint.x += 50;
+          //labelScreenPoint.y += 3;
+          labelMapPoint = screenUtils.toMapPoint(this._map.extent, this._map.width, this._map.height, labelScreenPoint);
       } else if (this.activeTool === 'area') {
         if (!this._polygonGraphic) {return;}
         labelMapPoint = this._polygonGraphic.geometry.getExtent().getCenter();
