@@ -48,7 +48,6 @@
   "esri/geometry/Polyline",
   "esri/geometry/Polygon",
   "esri/geometry/screenUtils",
-  "esri/geometry/geometryEngine",
   "esri/graphic",
 
   "esri/tasks/AreasAndLengthsParameters",
@@ -82,7 +81,7 @@
   debounce, has, domStyle, domClass, domConstruct, topic, on, gfx,
   _Widget, registry, Menu, MenuItem, Tooltip,
   PictureMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, symbolJsonUtils, TextSymbol,
-  Font, geodesicUtils, webMercatorUtils, Point, Polyline, Polygon,screenUtils, geometryEngine, Graphic,
+  Font, geodesicUtils, webMercatorUtils, Point, Polyline, Polygon,screenUtils, Graphic,
   AreasAndLengthsParameters, LengthsParameters, GeometryService,
   esriNS, esriConfig, domUtils, numberUtils, esriLang, esriUnits, wkidConverter,SpatialReference,
   _TemplatedMixin, _WidgetsInTemplateMixin,
@@ -1928,7 +1927,6 @@
         this._tempGraphic.setSymbol(this._lineSymbol);
         this._map.graphics.add(this._tempGraphic);
 
-        // place line distance label here
         this._mouseMoveMapHandler = connect.connect(this._map, "onMouseMove", this, "_measureDistanceMouseMoveHandler");
 
         //3.11 Event
@@ -2041,7 +2039,6 @@
       this._measureGraphic.geometry = measurementGeometry;
 
       if (this._map.cs === "PCS") {
-
         //The final result should be calculated by geometry service in order to give the accurate measurement.
         this._geometryServiceLength(measurementGeometry, true);
       }else{
@@ -2049,7 +2046,6 @@
         this._inputPoints = [];
         this.onMeasureEnd(this.activeTool, measurementGeometry, this._outputResult(this.result, this.getUnit()), this.getUnit());
       }
-
     },
 
     _geometryServiceLength: function (geometry, isEnd) {
@@ -2318,7 +2314,7 @@
     },
 
     // Purpose:
-    // -- Adds distance text to map graphic
+    // -- Adds distance/area text to map graphics
     _placeLabel: function (mResult) {
       // is there something to label?
       if(!this._tempGraphic && !this._measureGraphic) {return;}
