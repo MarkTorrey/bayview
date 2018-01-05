@@ -1570,7 +1570,6 @@
           this.onMeasure(this.activeTool, this._measureGraphic.geometry, finalResult, this.getUnit(), null);
         }else{
           this.onMeasureEnd(this.activeTool, this._measureGraphic.geometry, finalResult, this.getUnit());
-          this._placeLabel();
         }
       }
     },
@@ -2005,8 +2004,6 @@
         var densifiedLine = this._densifyGeometry(line);
         this._tempGraphic.setGeometry(densifiedLine);
 
-        this._placeLabel(densifiedLine);
-
         // Show estimated distance
         if (this._map.cs !== "PCS") {
           // Get new distance and update
@@ -2042,9 +2039,6 @@
 
       // Update App State
       this._measureGraphic.geometry = measurementGeometry;
-      
-      // draw the text after _measureGraphic has been updated
-      this._placeLabel();
 
       if (this._map.cs === "PCS") {
 
@@ -2157,7 +2151,7 @@
         this.resultValue.setContent(numberUtils.format(finalResult.toFixed(2), { pattern: this.numberPattern }) + " " + unit);
       }
 
-
+      this._placeLabel(this.resultValue.get('content'));
       // Added in 3.11 for Events
       return finalResult;
     },
@@ -2325,43 +2319,41 @@
 
     // Purpose:
     // -- Adds distance text to map graphic
-    _placeLabel: function (ofLine) {
+    _placeLabel: function (mResult) {
       // is there something to label?
-      if (!ofLine && !this._measureGraphic) {return;}
-
-      // what are we going to label
-      var mLine = ofLine ? ofLine : this._measureGraphic.geometry;
-      if (mLine.type !== 'polyline' || mLine.paths.length < 1) {return;}
-      
-      // figure out label location
-      // currently the endpoint of digitized polyline
-      var endLine = mLine.paths[mLine.paths.length - 1];
-      var endPt = mLine.paths[mLine.paths.length -1][endLine.length -1];
-      var labelPoint = new Point(endPt[0], endPt[1], this._map.spatialReference);
-
-      // offset label from line
-      var labelScreenPoint = screenUtils.toScreenPoint(this._map.extent, this._map.width, this._map.height, labelPoint);
-      labelScreenPoint.x += 10;
-      labelScreenPoint.y += 15;
-      var labelMapPoint = screenUtils.toMapPoint(this._map.extent, this._map.width, this._map.height, labelScreenPoint);
-
-      // calculate length, using geometryEngine here which is different from the output UI. It's using the 
-      // geometry service. should probably keep this consistent.
-      var lineDist = geometryEngine.geodesicLength(mLine, 'meters') / this._unitDictionary[this.getUnit()];
-      
-      // make readable
-      var formatDist = numberUtils.format(lineDist.toFixed(2), { pattern: this.numberPattern }) + " " + this._unitStrings[this.currentDistanceUnit];
+      if(!this._tempGraphic && !this._measureGraphic) {return;}
+      var labelMapPoint;
+      if (this.activeTool === 'distance') {
+        var mLine = this._tempGraphic.geometry.paths.length > 0 ? this._tempGraphic.geometry : this._measureGraphic.geometry;
+        if (!mLine && mLine.paths.length < 1) {return;}
+        // figure out label location
+        // currently the endpoint of digitized polyline
+        var endLine = mLine.paths[mLine.paths.length - 1];
+        var endPt = mLine.paths[mLine.paths.length -1][endLine.length -1];
+        var labelPoint = new Point(endPt[0], endPt[1], this._map.spatialReference);
+        
+        // offset label from line
+        var labelScreenPoint = screenUtils.toScreenPoint(this._map.extent, this._map.width, this._map.height, labelPoint);
+        labelScreenPoint.x += 50;
+        //labelScreenPoint.y += 3;
+        labelMapPoint = screenUtils.toMapPoint(this._map.extent, this._map.width, this._map.height, labelScreenPoint);
+      } else if (this.activeTool === 'area') {
+        if (!this._polygonGraphic) {return;}
+        labelMapPoint = this._polygonGraphic.geometry.getExtent().getCenter();
+      } else {
+        return;
+      }
 
       // create label
       var textLabel = new TextSymbol(
-        formatDist,
+        mResult,
         this._labelFont, 
-        this._defaultLineSymbol.color
+        new Color('#000000')
       );
 
       // add a halo, the text is the same color as the line it's possible they may
       // overlap.
-      textLabel.setHaloColor(new Color('#FFFFFF'));
+      textLabel.setHaloColor(new Color('#ffffff'));
       textLabel.setHaloSize(1);
 
       if (this._annoGraphic) {
