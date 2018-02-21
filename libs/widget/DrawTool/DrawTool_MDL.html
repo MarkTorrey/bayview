@@ -1,7 +1,9 @@
 <div class="gis_DrawDijit">
     <div class="title" data-dojo-attach-point="titleContainer">
+        
         <i class="material-icons draw-tool__icon" data-dojo-attach-point="closeBtn">clear</i>
         <span class="draw-tool__title">Draw</span>
+        <div data-dojo-attach-point="cp"></div>
     </div>
     <div data-dojo-attach-point="msgContainer" class="messageContainer">
         <i>Start drawing on the map <a data-dojo-attach-point="btnCancel" href="#">Cancel</a></i>
@@ -35,8 +37,9 @@
     <button class="mdl-button mdl-js-button mdl-js-ripple-effect right" data-dojo-attach-point="btnSaveGraphics">Save</button>
 
     <button class="mdl-button mdl-js-button mdl-js-ripple-effect right" data-dojo-attach-point="btnClearGraphics"><div class="clearIcon"></div></button>
+  
   </div>
-
+  
   <div data-dojo-attach-point="textContainer" style="width: auto;">
     <input data-dojo-type="dijit/form/TextBox" data-dojo-attach-point="inputText">
     <button data-dojo-attach-point="btnTextAdd" type="submit" class="mdl-button mdl-js-button mdl-js-ripple-effect">Add</button>

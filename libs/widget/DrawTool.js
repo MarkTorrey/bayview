@@ -44,6 +44,7 @@ define([
   'esri/symbols/SimpleFillSymbol',
   'esri/symbols/TextSymbol',
   'esri/symbols/Font',
+  'esri/dijit/ColorPicker',
   'dojo/text!./DrawTool/DrawTool_MDL.html'
 ],
 
@@ -52,7 +53,7 @@ function(
   Button, Tooltip, lang, Color, connect, on, domStyle, domClass, query, topic, Evented,
   TooltipDialog, popup, TextBox, Button, DropDownButton,
   Draw, Graphic, GraphicsLayer, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, TextSymbol, Font,
-  drawTemplate) {
+  EsriColorPicker, drawTemplate) {
 
   // main draw dijit
   return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, Evented], {
@@ -93,7 +94,7 @@ function(
       this.own(on(this.btnSaveGraphics, 'click', lang.hitch(this, this._saveGraphics)));
       this.own(on(this.btnCancel, 'click', lang.hitch(this, this._cancelDrawing)));
       this.own(on(this.closeBtn, 'click', lang.hitch(this, this._close)));
-
+      
       this.own(on(this.btnTextAdd, 'click', lang.hitch(this, this._btnTextAdd)));
       this.own(on(this.btnTextDismiss, 'click', lang.hitch(this, this._btnTextDismiss)));
 
@@ -110,7 +111,13 @@ function(
       if (this.container === 'extract') {
         domClass.add(this.titleContainer, 'hidden');
         domClass.add(this.msgContainer, 'hidden');
-      }
+      } 
+
+      this.colorPicker = new EsriColorPicker({
+        collapsed:true,
+        collapsible:true
+      }, this.cp);
+      this.own(on(this.colorPicker, 'color-change', lang.hitch(this, this._colorDidChange)));
 
       // add draw widget
       this.toolbar = new Draw(this.map);
@@ -120,7 +127,8 @@ function(
         title:'Draw Graphics'
       });
       this.map.addLayer(this.graphics);
-
+      
+      
       this.map.on('click', lang.hitch(this, function(evt) {
         this.clickEvent = evt;
       }));
@@ -213,19 +221,23 @@ function(
               });
             } else {
               symbol = new SimpleMarkerSymbol(this.drawConfig.symbology.point);
+              symbol.setColor(this.colorPicker.color);
               this._addGraphic(symbol);
             }
             break;
           case 'polyline':
             symbol = new SimpleLineSymbol(this.drawConfig.symbology.line);
+            symbol.setColor(this.colorPicker.color);
             this._addGraphic(symbol);
             break;
           case 'polygon':
             symbol = new SimpleFillSymbol(this.drawConfig.symbology.fill);
+            symbol.setColor(this.colorPicker.color);
             this._addGraphic(symbol);
             break;
           case 'rectangle':
             symbol = new SimpleFillSymbol(this.drawConfig.symbology.fill);
+            symbol.setColor(this.colorPicker.color);
             this._addGraphic(symbol);
             break;
           default:
@@ -286,6 +298,10 @@ function(
 
     _close: function() {
       topic.publish('/DrawTool/close', this);
+    },
+
+    _colorDidChange:function () {
+      console.log(this.colorPicker.color);
     },
 
     _addTooltips: function() {

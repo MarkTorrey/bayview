@@ -41,11 +41,7 @@ define(['esri/layers/FeatureLayer'], function(FeatureLayer) {
           'size': 8,
           'angle': 0,
           'xoffset': 0,
-          'yoffset': 0,
-          'outline': {
-            'color': [255, 0, 0, 255],
-            'width': 1
-          }
+          'yoffset': 0
         },
         line: {
           'type': 'esriSLS',
@@ -56,13 +52,7 @@ define(['esri/layers/FeatureLayer'], function(FeatureLayer) {
         fill: {
           'type': 'esriSFS',
           'style': 'esriSFSSolid', // esriSFSBackwardDiagonal | esriSFSCross | esriSFSDiagonalCross | esriSFSForwardDiagonal | esriSFSHorizontal | esriSFSNull | esriSFSSolid | esriSFSVertical
-          'color': [255, 0, 0, 100],
-          'outline': {
-            'type': 'esriSLS',
-            'style': 'esriSLSDash',
-            'color': [255, 0, 0, 255],
-            'width': 2
-          }
+          'color': [255, 0, 0, 100]
         }
       },
       hasSaveButton: false,
