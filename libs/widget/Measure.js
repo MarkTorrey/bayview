@@ -39,12 +39,15 @@
   "esri/symbols/SimpleLineSymbol",
   "esri/symbols/SimpleFillSymbol",
   "esri/symbols/jsonUtils",
+  "esri/symbols/TextSymbol",
+  "esri/symbols/Font",
 
   "esri/geometry/geodesicUtils",
   "esri/geometry/webMercatorUtils",
   "esri/geometry/Point",
   "esri/geometry/Polyline",
   "esri/geometry/Polygon",
+  "esri/geometry/screenUtils",
   "esri/graphic",
 
   "esri/tasks/AreasAndLengthsParameters",
@@ -77,8 +80,8 @@
   require, declare, lang, array, connect, Color,
   debounce, has, domStyle, domClass, domConstruct, topic, on, gfx,
   _Widget, registry, Menu, MenuItem, Tooltip,
-  PictureMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, symbolJsonUtils,
-  geodesicUtils, webMercatorUtils, Point, Polyline, Polygon, Graphic,
+  PictureMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, symbolJsonUtils, TextSymbol,
+  Font, geodesicUtils, webMercatorUtils, Point, Polyline, Polygon,screenUtils, Graphic,
   AreasAndLengthsParameters, LengthsParameters, GeometryService,
   esriNS, esriConfig, domUtils, numberUtils, esriLang, esriUnits, wkidConverter,SpatialReference,
   _TemplatedMixin, _WidgetsInTemplateMixin,
@@ -118,6 +121,7 @@
 
     //---------------
     // Graphic Related
+    _annoGraphic: null,
     _measureGraphics: [],
     _measureGraphic: null,
     _locationGraphic: null,
@@ -127,6 +131,7 @@
     _pointSymbol: null,
     _useDefaultPointSymbol : true,
     _defaultLineSymbol: null,
+    _labelFont: null,
     _lineSymbol: null,
     _areaLineSymbol: null,
     _defaultFillSymbol: null,
@@ -298,7 +303,8 @@
       // -- These are used by default if there are no constructor options for Line and Fill
       this._defaultLineSymbol = new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([0, 128, 255]), 3);
       this._defaultFillSymbol = new SimpleFillSymbol( SimpleLineSymbol.STYLE_SOLID,  new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([0, 128, 255]), 3), new Color([0,0,0, 0.5]));
-
+      this._labelFont = new Font(14, Font.STYLE_NORMAL, Font.VARIANT_NORMAL, Font.WEIGHT_BOLD, "Arial");
+      
       // If constructor object contains a Point symbol (Object), update widget to use it as default when drawing
       if (params.pointSymbol) {
         // Custom Point Symbol
@@ -541,6 +547,10 @@
       this._measureGraphic = null;
       this._measureGraphics = [];
       map.graphics.remove(this._tempGraphic);
+
+      if (this._annoGraphic) {
+        map.graphics.remove(this._annoGraphic);
+      }
 
       connect.disconnect(this._mouseMoveMapHandler);
       this._mouseMoveMapHandler = null;
@@ -1916,6 +1926,7 @@
         this._tempGraphic = new Graphic();
         this._tempGraphic.setSymbol(this._lineSymbol);
         this._map.graphics.add(this._tempGraphic);
+
         this._mouseMoveMapHandler = connect.connect(this._map, "onMouseMove", this, "_measureDistanceMouseMoveHandler");
 
         //3.11 Event
@@ -1937,7 +1948,7 @@
         // Current Line
         this._measureGraphic = new Graphic();
         this._measureGraphic.setSymbol(this._lineSymbol);
-
+      
         // Add to Line Array
         this._measureGraphics.push(this._measureGraphic);
 
@@ -2135,6 +2146,8 @@
       else {
         this.resultValue.setContent(numberUtils.format(finalResult.toFixed(2), { pattern: this.numberPattern }) + " " + unit);
       }
+
+      this._placeLabel(this.resultValue.get('content'));
       // Added in 3.11 for Events
       return finalResult;
     },
@@ -2298,6 +2311,59 @@
       }
       // Update the Image
       gfxShape.applyTransform(transform);
+    },
+
+    // Purpose:
+    // -- Adds distance/area text to map graphics
+    _placeLabel: function (mResult) {
+      // is there something to label?
+      if(!this._tempGraphic && !this._measureGraphic) {return;}
+      var labelMapPoint;
+      if (this.activeTool === 'distance') {
+        var mLine;
+        if (this._tempGraphic.geometry.paths.length > 0) {
+          mLine = this._tempGraphic.geometry;
+        } else if (this._measureGraphic && this._measureGraphic.geometry){
+          mLine = this._measureGraphic.geometry;
+        } else {
+          return;
+        }
+        if (!mLine && mLine.paths.length < 1) {return;}
+          // figure out label location
+          // currently the endpoint of digitized polyline
+          var endLine = mLine.paths[mLine.paths.length - 1];
+          var endPt = mLine.paths[mLine.paths.length -1][endLine.length -1];
+          var labelPoint = new Point(endPt[0], endPt[1], this._map.spatialReference);
+          
+          // offset label from line
+          var labelScreenPoint = screenUtils.toScreenPoint(this._map.extent, this._map.width, this._map.height, labelPoint);
+          labelScreenPoint.x += 50;
+          //labelScreenPoint.y += 3;
+          labelMapPoint = screenUtils.toMapPoint(this._map.extent, this._map.width, this._map.height, labelScreenPoint);
+      } else if (this.activeTool === 'area') {
+        if (!this._polygonGraphic) {return;}
+        labelMapPoint = this._polygonGraphic.geometry.getExtent().getCenter();
+      } else {
+        return;
+      }
+
+      // create label
+      var textLabel = new TextSymbol(
+        mResult,
+        this._labelFont, 
+        new Color('#000000')
+      );
+
+      // add a halo, the text is the same color as the line it's possible they may
+      // overlap.
+      textLabel.setHaloColor(new Color('#ffffff'));
+      textLabel.setHaloSize(1);
+
+      if (this._annoGraphic) {
+        this._map.graphics.remove(this._annoGraphic);
+      }
+      this._annoGraphic = new Graphic(labelMapPoint, textLabel);
+      this._map.graphics.add(this._annoGraphic);
     }
   });
 
