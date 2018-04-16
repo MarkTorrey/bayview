@@ -2,7 +2,7 @@
 
 Intuitive, interactive online map deployed by Bay County, Florida. After searching for a parcel, address or point of interest users can quickly learn about nearby schools, parks and other ammenities.
 
-[View it live](http://gis.baycountyfl.gov/beta)
+[View it live](http://maps.baycountyfl.gov/)
 
 ## Development Instructions
 

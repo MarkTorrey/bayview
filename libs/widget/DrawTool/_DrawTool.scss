@@ -48,6 +48,16 @@
     //   }
   }
 
+    .esriColorPicker.esriContainer {
+        border: none;
+        display: inline-block;
+        padding: 4px;
+        background-color:#ffffff;
+        border-radius: 0px;
+        position: absolute;
+        right: 48px;
+    }
+
   .messageContainer {
     float: left;
     margin: 8px;
