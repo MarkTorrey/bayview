@@ -45,7 +45,7 @@ define(['esri/layers/FeatureLayer'], function(FeatureLayer) {
         },
         line: {
           'type': 'esriSLS',
-          'style': 'esriSLSDash', // esriSLSDash | esriSLSDashDotDot | esriSLSDot | esriSLSNull | esriSLSSolid
+          'style': 'esriSLSSolid', // esriSLSDash | esriSLSDashDotDot | esriSLSDot | esriSLSNull | esriSLSSolid
           'color': [255, 0, 0, 255], // blue
           'width': 2
         },

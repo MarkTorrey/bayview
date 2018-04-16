@@ -115,7 +115,8 @@ function(
 
       this.colorPicker = new EsriColorPicker({
         collapsed:true,
-        collapsible:true
+        collapsible:true,
+        color: new Color('#c500ff')
       }, this.cp);
       this.own(on(this.colorPicker, 'color-change', lang.hitch(this, this._colorDidChange)));
 
@@ -338,6 +339,12 @@ function(
       new Tooltip({
         connectId: [this.btnClearGraphics],
         label: 'Clear',
+        position: ['below'],
+        showDelay: 0
+      });
+      new Tooltip({
+        connectId:[this.colorPicker],
+        label: 'Change Color',
         position: ['below'],
         showDelay: 0
       });
