@@ -80,10 +80,7 @@ define([
                 this.activeTool = tool;
 
                 // Highlight tool
-                if (evt.srcElement){
-                  domClass.add(evt.srcElement, 'is-selected');
-                }
-                
+                domClass.add(evt.srcElement, 'is-selected');
             }
 
         },

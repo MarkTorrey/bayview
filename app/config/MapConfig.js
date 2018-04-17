@@ -105,34 +105,13 @@ define(['esri/layers/FeatureLayer'], function(FeatureLayer) {
     // operationalLayers: Layers to load on top of the basemap: valid 'type' options: 'dynamic', 'tiled', 'feature'.
     // 'options' object is passed as the layers options for constructor. Title will be used in the legend only. id's must be unique and have no spaces.
     operationalLayers: [
-      {
-        type: 'vectortiled',
-        url: 'http://rats.maps.arcgis.com/sharing/rest/content/items/30d6b8271e1849cd9c3042060001f425/resources/styles/root.json?f=pjson',
-        options: {
-          id: 'world_trans',
-          title: 'World Transportation',
-          opacity: 1,
-          visible: false,
-          infoWindow: {
-            isEnabled: false,
-            outFields: ['*'],
-            title: 'World Transportation',
-            headerFunction: function(attrs) {
-              return ''
-            },
-            iconClass: 'fa fa-tint',
-            widget: '' // use 'DefaultInfoWindow' or define your own
-          }
-        }
-      },
-
         {
           type: 'Feature Layer',
           url: 'http://gis.baycountyfl.gov/arcgis/rest/services/PublicViewer/MapServer/0',
           options: {
             id: 'addresses',
             title: 'Addresses',
-            opacity: 0.25,
+            opacity: 1,
             visible: true,
             infoWindow: {
               isEnabled: true,

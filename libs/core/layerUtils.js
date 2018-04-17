@@ -30,7 +30,6 @@ define([
   'esri/layers/ArcGISImageServiceLayer',
   'esri/layers/WebTiledLayer',
   'esri/layers/WMSLayer',
-  'esri/layers/VectorTileLayer',
 
   'esri/InfoTemplate',
   'esri/request',
@@ -41,8 +40,7 @@ define([
     lang, Color,
     Deferred, domConstruct, topic,
     SimpleLineSymbol, SimpleFillSymbol, SimpleRenderer,
-    FeatureLayer, ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer,
-    ArcGISImageServiceLayer, WebTiledLayer, WMSLayer, VTLayer,
+    FeatureLayer, ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer, ArcGISImageServiceLayer, WebTiledLayer, WMSLayer,
     InfoTemplate, esriRequest, arcgisUtils
   ) {
     return {
@@ -91,10 +89,6 @@ define([
               layerObjects.push(layerObject);
             } else if (layerDef.type === 'tiled') {
               layerObject = this._getTiledLayerObject(layerDef);
-              //this.addLayer(map, layerObject, layerDef.options);
-              layerObjects.push(layerObject);
-            } else if (layerDef.type === 'vectortiled') {
-              layerObject = this._getVectorTileObject(layerDef);
               //this.addLayer(map, layerObject, layerDef.options);
               layerObjects.push(layerObject);
             } else if (layerDef.type === 'Feature Layer') {
@@ -484,11 +478,6 @@ define([
       _getDynamicLayerObject: function(layerDef) {
         var layerObject = new ArcGISDynamicMapServiceLayer(layerDef.url, layerDef.options);
         return layerObject;
-      },
-
-      _getVectorTileObject: function (layerDef) {
-        var vlo = new VTLayer(layerDef.url, layerDef.options);
-        return vlo;
       },
 
       _getFeatureLayerObject: function(layerDef) {
