@@ -72,9 +72,19 @@ function(
             this.basemapName.innerHTML = 'Streets View';
         }
 
+        /* Check which basemap is active and toggle overlay layer
+         * you'll just want to update the id with whatever you named it your config 
+         */
+        var vis = this.basemapName.innerHTML === 'Streets View' ? true:false;
+        this.map.getLayer("world_trans").setVisibility(vis);
+
         // Switch thumbnail image
         domClass.toggle(this.basemapStreetThumb, 'is-hidden');
         domClass.toggle(this.basemapSatThumb, 'is-hidden');
+    },
+
+    _ToggleBasemapOverlay: function() {
+      
     },
 
     _attachEventListeners: function() {
