@@ -251,7 +251,7 @@ define([
           topic.subscribe('/map/click/on', lang.hitch(this, function(sender, args) {
             if (map) {
               map.showZoomSlider();
-              map._isClickEventOn = true;
+              map._mapObject._isClickEventOn = true;
             }
           }));
 
