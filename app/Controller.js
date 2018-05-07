@@ -201,9 +201,10 @@ define([
 
         topic.subscribe('/map/clicked', lang.hitch(this, function(sender, args) {
             if (!this.measurement.isActiveTool()) {
-                this.search.mapClickEvent(args.event.target);
+                //this.search.mapClickEvent(args.event.target);
                 // TODO turning this off for now (Reverse Geocode Search)
                 //this.search.searchMapPoint(args.event.mapPoint);
+                this.search.searchMapPoint(args.event.mapPoint);
             }
         }));
 
@@ -292,7 +293,7 @@ define([
       }));
 
       topic.subscribe('/layerlist/layer/clicked', lang.hitch(this, function(sender, args) {
-        this.search.layerVisibilityChanged(args);
+        //this.search.layerVisibilityChanged(args);
       }));
 
     }
