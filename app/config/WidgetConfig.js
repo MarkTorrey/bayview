@@ -395,14 +395,14 @@ define(['esri/layers/FeatureLayer'], function(FeatureLayer) {
           query: {
             returnGeometry: true, // if false then relatedQuery is used to determine geometry
             'id': 'roads', // unique identifier within the unifiedSearch Config
-            fields: ['OWNER', 'FULL_NAME', 'SURFACE'], // field to be queried on (where clause)
+            fields: ['OWNER', 'FULL_NAME'], // field to be queried on (where clause)
             group: {
               isGrouped: true,
               sectionHeader: 'Roads',
               iconClass: 'fa fa-folder'
             },
             results: {
-              labelFields: ['FULL_NAME'],
+              labelFields: ['OWNER','FULL_NAME', 'SURFACE'],
               iconClass: 'fa fa-road',
               priority: 2
             },
@@ -415,14 +415,14 @@ define(['esri/layers/FeatureLayer'], function(FeatureLayer) {
           query: {
             returnGeometry: true, // if false then relatedQuery is used to determine geometry
             'id': 'parcels', // unique identifier within the unifiedSearch Config
-            fields: ['A1RENUM', 'DSITEADDR', 'A2OWNAME','DTAXACRES', 'DORAPPDESC'], // field to be queried on (where clause)
+            fields: ['A1RENUM', 'DSITEADDR', 'A2OWNAME'], // field to be queried on (where clause)
             group: {
               isGrouped: true,
               sectionHeader: 'Parcels',
               iconClass: 'fa fa-folder'
             },
             results: {
-              labelFields: ['A1RENUM', 'DSITEADDR', 'A2OWNAME'],
+              labelFields: ['A1RENUM', 'DSITEADDR', 'A2OWNAME','DTAXACRES', 'DORAPPDESC'],
               labelFunction: function(attrs) { // label to show in results (must refer to queryLabelFields)
                 return attrs.A1RENUM + ' (' + attrs.DSITEADDR + ')';
               },

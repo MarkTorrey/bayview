@@ -261,9 +261,7 @@ define(
       _zoomtoClicked: function(params) {
         var features = params.features || [];
         var extent = graphicsUtils.graphicsExtent(features);
-        topic.publish('/zoom/to', this, {
-          'geometry': extent
-        });
+        topic.publish('/map/zoom/geometry', this, extent);
       },
 
       zoomToLocation: function(location) {

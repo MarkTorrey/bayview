@@ -34,9 +34,11 @@ define([
 
     'core/queryUtils',
     'core/layerUtils',
+    'core/graphicUtils',
 
     'esri/tasks/query',
     'esri/geometry/Circle',
+    'esri/geometry/Point',
 
     './InfoRow',
     './InfoBox',
@@ -46,10 +48,8 @@ define([
 
   function(
     declare, WidgetBase, TemplatedMixin, WidgetsInTemplateMixin, Evented,
-    lang, connect, topic, parser, query, on, domStyle, domClass, domAttr, domConstruct, deferredAll, registry,
-    queryUtils, layerUtils,
-    Query, Circle,
-    InfoRow, InfoBox,
+    lang, connect, topic, parser, query, on, domStyle, domClass, domAttr, domConstruct, 
+    deferredAll, registry, queryUtils, layerUtils, graphicUtils, Query, Circle, Point, InfoRow, InfoBox,
     template
   ) {
 
@@ -65,6 +65,7 @@ define([
             this.newline = '\r\n'; // Character sequence to consider a newline. Defaults to "\r\n" (CRLF) as per RFC 4180.
             this.trim = false; // If true, leading/trailing space will be trimmed from any unquoted values.
             this.fieldNames = null; //["Name"], // If specified, indicates names of fields in the order they appear in CSV records.  If unspecified, the first line of the CSV will be treated as a header row, and field names will be populated from there.
+            
         },
 
         postCreate: function() {
@@ -80,9 +81,11 @@ define([
             this.own(on(this.threeMBufferBtn, 'click', lang.hitch(this, this._btnAnalyzeClicked, 3)));
             this.own(on(this.fiveMBufferBtn, 'click', lang.hitch(this, this._btnAnalyzeClicked, 5)));
 
+            this.graphicUtils = new graphicUtils(this.map);
         },
 
         startup: function() {
+            
         },
 
         showDetails: function(layerId, selectedFeature) {
@@ -144,9 +147,27 @@ define([
 
         showPanel: function() {
             query('#infoPanelWrapper').removeClass('is-hidden');
+            this.graphicUtils.drawGraphic(this.getSelectedGraphic());
         },
 
+        getSelectedGraphic: function () {
+            var g;
+            if (this.selectedFeature && this.selectedFeature.location){
+                // results are from geocoder
+                g = new Point({
+                  "x": this.selectedFeature.location.x,
+                  "y": this.selectedFeature.location.y,
+                  "spatialReference": {"wkid": this.selectedFeature.location.spatialReference.wkid}
+                }); 
+              } else {
+                g = this.selectedFeature.geometry;
+              }
+              return g;
+        },
+
+
         hidePanel: function() {
+            
             query('#infoPanelWrapper').addClass('is-hidden');
             dojo.empty(this.detailsContainer);
             dojo.empty(this.bufferContainer);
@@ -156,6 +177,10 @@ define([
             domClass.add(this.bufferOptions, 'is-hidden');
             domClass.add(this.btnPrint, 'is-hidden');
             domClass.add(this.btnExport, 'is-hidden');
+
+            if (this.selectedFeature && this.selectedFeature.geometry){
+                this.graphicUtils.removeGraphic(this.getSelectedGraphic());
+            }
         },
 
         clear: function() {

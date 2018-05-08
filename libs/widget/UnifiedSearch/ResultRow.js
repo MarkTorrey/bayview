@@ -23,6 +23,8 @@ define([
 
   'dijit/form/Button',
 
+  'core/graphicUtils',
+
   'dojo/text!./templates/ResultRow.html'
 ], function(
   _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, Evented,
@@ -30,6 +32,7 @@ define([
   on, domClass, domConstruct, domAttr, domStyle, mouse,
   Graphic, Extent, Point, Polyline, PictureMarkerSymbol, esriSMS,
   Button,
+  graphicUtils,
   template
 ) {
   return declare([_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, Evented], {
@@ -55,23 +58,10 @@ define([
       //var featureExtent = this._getExtent(this.resultObj.extent);
       var featureExtent = this.resultObj.extent;
       if (featureExtent !== null && featureExtent !== '') {
-        var pinSymbol = new esriSMS({
-          "type": "esriSMS",
-           "style": "esriSMSSquare",
-           "color": [76, 115, 0, 50],
-           "size": 12,
-           "angle": 0,
-           "xoffset": 0,
-           "yoffset": 0,
-           "outline": 
-            {
-            "color": [152, 230, 0, 255],
-             "width": 1.25
-            }
-          });
-        this.mapPin = new Graphic(featureExtent, pinSymbol);
+        
+        //this.mapPin = new Graphic(featureExtent, pinSymbol);
       }
-
+      this.graphicUtils = new graphicUtils(this.map);
       // hook up events
       this.own(on(this.resultIcon, 'click', lang.hitch(this, function() {
         this.emit('iconclicked', {
@@ -96,14 +86,27 @@ define([
 
       // MOUSE HOVER
       this.own(on(this.resultItem, mouse.enter, lang.hitch(this, function(event) {
-        if (this.map && this.mapPin) {
-          this.map.graphics.add(this.mapPin);
+        if (this.resultObj && this.resultObj.obj){
+          var g;
+          if (this.resultObj.obj.location){
+            // results are from geocoder
+            g = new Point({
+              "x": this.resultObj.obj.location.x,
+              "y": this.resultObj.obj.location.y,
+              "spatialReference": {"wkid": this.resultObj.obj.location.spatialReference.wkid}
+            }, this.resultObj.obj.location.y, ); 
+          } else {
+            g = this.resultObj.obj.geometry;
+          }
+          this.graphicUtils.drawGraphic(g);
         }
+        
       })));
       this.own(on(this.resultItem, mouse.leave, lang.hitch(this, function(event) {
-        if (this.map && this.mapPin) {
-          this.map.graphics.remove(this.mapPin);
+        if (this.resultObj && this.resultObj.obj){
+          this.graphicUtils.removeGraphic(this.resultObj.obj.geometry);
         }
+        
       })));
 
       this.toggleActionButton(hasAction);
