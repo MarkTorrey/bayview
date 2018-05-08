@@ -23,16 +23,12 @@ define([
   './ResultRow',
 
   'dojo/text!./templates/UnifiedSearchView.html'
-],
-
-function(
-  declare, dojoEvent, lang, domConstruct, domClass, domStyle, domAttr, on, dojoQuery, dojoKeys, dojoOn, dojoMouse, topic,
-  _TemplatedMixin, focusUtil, Tooltip, registry,
-  _EventedWidget,
-  ResultRow,
-  template)
-{
-
+], function (
+  declare, dojoEvent, lang, domConstruct, domClass, domStyle, domAttr, on, dojoQuery, 
+  dojoKeys, dojoOn, dojoMouse, topic, _TemplatedMixin, focusUtil, Tooltip, registry,
+  _EventedWidget, ResultRow, template
+) {
+  
   return declare([_EventedWidget, _TemplatedMixin], {
 
     templateString: template,
@@ -477,6 +473,7 @@ function(
       this.showContainer1();
 
       this.inputNode.focus();
+      topic.publish('/UnifiedSearch/back/clicked');
     }
 
   });

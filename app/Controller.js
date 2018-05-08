@@ -188,6 +188,7 @@ define([
           var layerId = args.layerId;
           var selectedFeature = args.obj;
           selectedFeature._layer = args._layer;
+          this.infoPanel.clear();
           this.infoPanel.showDetails(layerId, selectedFeature);
           this.infoPanel.showPanel();
         }));

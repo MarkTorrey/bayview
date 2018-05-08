@@ -19,6 +19,7 @@ define([
   'esri/geometry/Point',
   'esri/geometry/Polyline',
   'esri/symbols/PictureMarkerSymbol',
+  'esri/symbols/SimpleMarkerSymbol',
 
   'dijit/form/Button',
 
@@ -27,7 +28,7 @@ define([
   _WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, Evented,
   declare, lang,
   on, domClass, domConstruct, domAttr, domStyle, mouse,
-  Graphic, Extent, Point, Polyline, PictureMarkerSymbol,
+  Graphic, Extent, Point, Polyline, PictureMarkerSymbol, esriSMS,
   Button,
   template
 ) {
@@ -54,7 +55,20 @@ define([
       //var featureExtent = this._getExtent(this.resultObj.extent);
       var featureExtent = this.resultObj.extent;
       if (featureExtent !== null && featureExtent !== '') {
-        var pinSymbol = new PictureMarkerSymbol('./libs/esri/dijits/AssetsManager/images/mapPin.png', 26, 36);
+        var pinSymbol = new esriSMS({
+          "type": "esriSMS",
+           "style": "esriSMSSquare",
+           "color": [76, 115, 0, 50],
+           "size": 12,
+           "angle": 0,
+           "xoffset": 0,
+           "yoffset": 0,
+           "outline": 
+            {
+            "color": [152, 230, 0, 255],
+             "width": 1.25
+            }
+          });
         this.mapPin = new Graphic(featureExtent, pinSymbol);
       }
 

@@ -395,7 +395,7 @@ define(['esri/layers/FeatureLayer'], function(FeatureLayer) {
           query: {
             returnGeometry: true, // if false then relatedQuery is used to determine geometry
             'id': 'roads', // unique identifier within the unifiedSearch Config
-            fields: ['OWNER', 'FULL_NAME'], // field to be queried on (where clause)
+            fields: ['OWNER', 'FULL_NAME', 'SURFACE'], // field to be queried on (where clause)
             group: {
               isGrouped: true,
               sectionHeader: 'Roads',
@@ -415,7 +415,7 @@ define(['esri/layers/FeatureLayer'], function(FeatureLayer) {
           query: {
             returnGeometry: true, // if false then relatedQuery is used to determine geometry
             'id': 'parcels', // unique identifier within the unifiedSearch Config
-            fields: ['A1RENUM', 'DSITEADDR', 'A2OWNAME'], // field to be queried on (where clause)
+            fields: ['A1RENUM', 'DSITEADDR', 'A2OWNAME','DTAXACRES', 'DORAPPDESC'], // field to be queried on (where clause)
             group: {
               isGrouped: true,
               sectionHeader: 'Parcels',
