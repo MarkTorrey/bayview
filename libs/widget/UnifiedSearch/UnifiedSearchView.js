@@ -390,6 +390,7 @@ function(
         })));
         this.own(on(row, 'actionclicked', lang.hitch(this, function(args) {
           this.showRowLoading(row);
+          this.hideContainer2();
           var resultObj = args.resultObj || {};
           this.emitItem(resultObj, strInput);
         })));

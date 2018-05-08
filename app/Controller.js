@@ -187,6 +187,7 @@ define([
         topic.subscribe('/UnifiedSearch/result/clicked', lang.hitch(this, function(sender, args) {
           var layerId = args.layerId;
           var selectedFeature = args.obj;
+          selectedFeature._layer = args._layer;
           this.infoPanel.showDetails(layerId, selectedFeature);
           this.infoPanel.showPanel();
         }));

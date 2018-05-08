@@ -716,6 +716,7 @@ define(
             }
             topic.publish(this.toolPrefix + '/result/clicked', this, {
               'layerId': params.layerId,
+              '_layer': params.layer,
               'obj': params.obj,
               'currentGeometry': this.currentGeometry
             });
