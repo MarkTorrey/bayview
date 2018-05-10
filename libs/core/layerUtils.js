@@ -30,19 +30,17 @@ define([
   'esri/layers/ArcGISImageServiceLayer',
   'esri/layers/WebTiledLayer',
   'esri/layers/WMSLayer',
+  'esri/layers/VectorTileLayer',
 
   'esri/InfoTemplate',
   'esri/request',
   'esri/arcgis/utils'
-],
-
-  function(
-    lang, Color,
-    Deferred, domConstruct, topic,
-    SimpleLineSymbol, SimpleFillSymbol, SimpleRenderer,
-    FeatureLayer, ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer, ArcGISImageServiceLayer, WebTiledLayer, WMSLayer,
-    InfoTemplate, esriRequest, arcgisUtils
-  ) {
+], function(
+  lang, Color, Deferred, domConstruct, topic, SimpleLineSymbol, SimpleFillSymbol, SimpleRenderer, 
+  FeatureLayer, ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer, 
+  ArcGISImageServiceLayer, WebTiledLayer, WMSLayer, VTLayer, InfoTemplate, esriRequest,
+  arcgisUtils
+  ) { 
     return {
 
       // TODO: update EsriLegend & LayerList who is using this function
@@ -90,6 +88,9 @@ define([
             } else if (layerDef.type === 'tiled') {
               layerObject = this._getTiledLayerObject(layerDef);
               //this.addLayer(map, layerObject, layerDef.options);
+              layerObjects.push(layerObject);
+            } else if (layerDef.type === 'vectortiled') {
+              layerObject = this._getVectorTileObject(layerDef);
               layerObjects.push(layerObject);
             } else if (layerDef.type === 'Feature Layer') {
               layerObject = this._getFeatureLayerObject(layerDef);
@@ -496,6 +497,11 @@ define([
           });
         });
         return layerObject;
+      },
+
+      _getVectorTileObject: function (layerDef) {
+        var vlo = new VTLayer(layerDef.url, layerDef.options);
+        return vlo;
       },
 
       _getTiledLayerObject: function(layerDef) {
