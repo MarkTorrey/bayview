@@ -474,7 +474,14 @@ define([
 
       this.inputNode.focus();
       topic.publish('/UnifiedSearch/back/clicked');
-    }
+    },
 
+    hide: function() {
+      domClass.add(this.domNode, 'is-hidden');
+    },
+
+    show: function(){
+      domClass.remove(this.domNode, 'is-hidden');
+    }
   });
 });

@@ -211,17 +211,17 @@ define([
         }));
 
         topic.subscribe('/ToolList/selected', lang.hitch(this, function(sender, args) {
-          this.search.hide();
+          this.search.lsView.hide();
         }));
 
         topic.subscribe('/ToolList/unselected', lang.hitch(this, function(sender, args) {
-          this.search.show();
+          this.search.lsView.show();
           this.navigation.clearToolList();
         }));
 
         //TODO this may be misplaced as it doesnt rely on map?
         topic.subscribe('/ToolList/unselectTool', lang.hitch(this, function(sender, args) {
-          this.search.show();
+          this.search.lsView.show();
           if (args.type === 'draw') {
               this.drawTool.hide();
           } else if (args.type === 'measure') {
@@ -238,7 +238,7 @@ define([
         // TODO the show/hide methods of draw need to be made like Measurements show/hide methods
         //TODO this may be misplaced as it doesnt rely on map?
         topic.subscribe('/DrawTool/close', lang.hitch(this, function(sender, args) {
-          this.search.show();
+          this.search.lsView.show();
           this.drawTool.hide();
           this.navigation.clearToolList();
         }));
