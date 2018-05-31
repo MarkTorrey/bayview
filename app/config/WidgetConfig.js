@@ -402,7 +402,7 @@ define(['esri/layers/FeatureLayer'], function(FeatureLayer) {
               iconClass: 'fa fa-folder'
             },
             results: {
-              labelFields: ['FULL_NAME'],
+              labelFields: ['OWNER','FULL_NAME', 'SURFACE'],
               iconClass: 'fa fa-road',
               priority: 2
             },
@@ -422,7 +422,7 @@ define(['esri/layers/FeatureLayer'], function(FeatureLayer) {
               iconClass: 'fa fa-folder'
             },
             results: {
-              labelFields: ['A1RENUM', 'DSITEADDR', 'A2OWNAME'],
+              labelFields: ['A1RENUM', 'DSITEADDR', 'A2OWNAME','DTAXACRES', 'DORAPPDESC'],
               labelFunction: function(attrs) { // label to show in results (must refer to queryLabelFields)
                 return attrs.A1RENUM + ' (' + attrs.DSITEADDR + ')';
               },
