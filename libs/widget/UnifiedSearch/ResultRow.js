@@ -94,7 +94,7 @@ define([
               "x": this.resultObj.obj.location.x,
               "y": this.resultObj.obj.location.y,
               "spatialReference": {"wkid": this.resultObj.obj.location.spatialReference.wkid}
-            }, this.resultObj.obj.location.y, ); 
+            }); 
           } else {
             g = this.resultObj.obj.geometry;
           }
